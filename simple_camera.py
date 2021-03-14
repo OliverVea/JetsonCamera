@@ -1,37 +1,12 @@
+from pipeline import Pipeline
+
 import cv2
 import time
 import os
 
-def gstreamer_pipeline(
-    filename='sometestfile.yuv',
-    capture_width=3264,
-    capture_height=2464,
-    display_width=3264/4,
-    display_height=2464/4,
-    record_width=2464/4,
-    record_height=2464/4,
-    framerate=21,
-    flip_method=0,
-):
-    return (
-        f'nvarguscamerasrc ! ' +
-        f'video/x-raw(memory:NVMM),' +
-        f'width=(int){int(capture_width)}, height=(int){int(capture_height)},' +
-        f'format=(string)NV12, framerate=(fraction){framerate}/1 ! ' +
-        f'tee name=t ! ' +
-        f'queue ! ' +
-        f'nvvidconv ! ' +
-        f'video/x-raw, width=(int){int(display_width)}, height=(int){int(display_height)}, format=(string)BGRx ! ' +
-        f'videoconvert ! ' +
-        f'video/x-raw, format=(string)BGR ! appsink drop=true ' +
-        f't. ! ' +
-        f'queue ! ' +
-        f'nvvidconv ! ' +
-        f'video/x-raw, width=(int){int(record_width)}, height=(int){int(record_height)}, format=(string)I420 ! ' +
-        f'y4menc ! ' +
-        f'filesink location={filename}' + 
-        ''
-    ).replace('\t', '')
+pipeline = Pipeline(
+    
+)
 
 font                   = cv2.FONT_HERSHEY_SIMPLEX
 bottomLeftCornerOfText = (2, 14)
