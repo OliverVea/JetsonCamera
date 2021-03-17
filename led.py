@@ -1,4 +1,5 @@
 from event import Event
+from task import Task
 
 import Jetson.GPIO as gpio
 from threading import Thread
@@ -10,12 +11,12 @@ class Pattern:
     ON  = [(1.0, 1.0)]
 
     BLINK = [(1.0, 0.2), (0.0, 1.0)]
-    PULSE = [(1.0, 1.0), (0.0, 1.0)]  
+    PULSE = [(1.0, 1.0), (0.0, 1.0)] 
 
     def rising(steps):
         return [(i / (steps - 1), 1) for i in range(steps)]
 
-class LED:
+class LED(Task):
     EVENT_INITIALIZED = Event.get_event_code('LED Initialized', verbose=False)
     EVENT_STARTED = Event.get_event_code('LED Started', verbose=False)
     EVENT_STOPPED = Event.get_event_code('LED Stopped', verbose=False)
@@ -79,11 +80,8 @@ class LED:
                             self._output(gpio.LOW)
                     time.sleep(time_scalar * self.t)
 
-                if not self.run:
+                if not self.running:
                     return
-
-    def is_running(self):
-        return self.thread != None
 
     def start(self):
         if self.is_running():
@@ -93,40 +91,14 @@ class LED:
         gpio.setup(self.pin, gpio.OUT)
 
         self.state = -1
-        self.run = True
-        self.thread = Thread(target=LED._task, args=(self,))
-        self.thread.start()
 
-        Event.dispatch(LED.EVENT_STARTED, caller=self)
+        self._start()
+        
 
     def stop(self):
-        if not self.is_running():
-            print(f'Could not stop LED thread (pin {self.pin}) as it is not running.')
-            return
+        self._stop()
 
-        self.run = False
-        self.thread.join()
-        self.thread = None
         self.state = -1
 
         if self.cleanup >= 2:
             gpio.cleanup(self.pin)
-
-        Event.dispatch(LED.EVENT_STOPPED, caller=self)
-
-# Demo:
-if __name__ == '__main__':
-    gpio.setmode(gpio.BOARD)
-
-    leds = [
-        LED(11, initial_pattern=Pattern.rising(4), pwm_frequency=100, pattern_step=0.25), 
-        LED(15, initial_pattern=Pattern.ON, pwm_frequency=0, pattern_step=1),
-    ]
-
-    for led in leds:
-        led.start()
-
-    input()
-
-    for led in leds:
-        led.stop()

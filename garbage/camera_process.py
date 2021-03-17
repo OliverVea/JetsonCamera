@@ -4,11 +4,7 @@ from subprocess import Popen, PIPE, signal
 
 import os
 
-#import cv2
-
 import time
-
-#print(cv2.getBuildInformation())
 
 def get_command(filename, width=int(3264/4), height=int(2464/4), record_type='videos'):
   # Video

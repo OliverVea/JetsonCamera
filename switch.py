@@ -1,14 +1,15 @@
 from event import Event
+from task import Task
 
 import Jetson.GPIO as gpio
 from threading import Thread
 import time
 
-class Switch:
+class Switch(Task):
     EVENT_INITIALIZED = Event.get_event_code('Switch Initialized', verbose=False)
     EVENT_STARTED = Event.get_event_code('Switch Started', verbose=False)
     EVENT_STOPPED = Event.get_event_code('Switch Stopped', verbose=False)
-    EVENT_CHANGED = Event.get_event_code('Switch Changed', verbose=True)
+    EVENT_CHANGED = Event.get_event_code('Switch Changed', verbose=False)
     EVENT_ON = Event.get_event_code('Switch On', verbose=False)
     EVENT_OFF = Event.get_event_code('Switch Off', verbose=False)
 
@@ -18,7 +19,7 @@ class Switch:
         self.sample_period = 1 / sample_frequency
         self.delay = debounce_delay
 
-        self.run = False
+        self.running = False
         self.state = -1
         self.thread = None
 
@@ -43,13 +44,13 @@ class Switch:
                 time.sleep(self.delay)
 
     def _task(self):
-        while self.run:
-            state = gpio.input(self.pin)
-            self._update(state)
-            time.sleep(self.sample_period)
+        while self.running:
+            try:
+                state = gpio.input(self.pin)
+                self._update(state)
+            except: pass
 
-    def is_running(self):
-        return self.thread != None
+            time.sleep(self.sample_period)
 
     def start(self):
         if self.is_running():
@@ -57,58 +58,15 @@ class Switch:
             return
 
         gpio.setup(self.pin, gpio.IN)
-        
-        self.run = True
-        self.thread = Thread(target=Switch._task, args=(self,))
-        self.thread.start()
-
-        Event.dispatch(Switch.EVENT_STARTED, caller=self)
-
         state = gpio.input(self.pin)
         self._update(state)
 
+        self._start()
 
     def stop(self):
-        if not self.is_running():
-            print(f'Could not stop Switch thread (pin {self.pin}) as it is not running.')
-            return
-
-        self.run = False
-        self.thread.join()
-        self.thread = None
+        self._stop()
 
         if self.cleanup >= 2:
             gpio.cleanup(self.pin)
-        
-        Event.dispatch(Switch.EVENT_STOPPED, caller=self)
 
         self.state = -1
-
-
-if __name__ == '__main__':
-    from led import LED, Pattern
-
-    gpio.cleanup()
-    gpio.setmode(gpio.BOARD)
-
-    led = LED(11, initial_pattern=Pattern.OFF)
-    led.start()
-
-    def handler_on(event, args):
-        global led
-        led.pattern = Pattern.ON
-
-    def handler_off(event, args):
-        global led
-        led.pattern = Pattern.OFF
-
-    Event.register(Switch.EVENT_ON, handler_on)
-    Event.register(Switch.EVENT_OFF, handler_off)
-
-    switch = Switch(7)
-    switch.start()
-    
-    input()
-
-    switch.stop()
-    led.stop()

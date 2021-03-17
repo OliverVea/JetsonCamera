@@ -16,13 +16,13 @@ class Pipeline:
         ]
 
     @staticmethod
-    def _get_appsink(width, height, drop=True):
+    def _get_appsink(width, height, max_buffers: int = 1, drop: bool = True):
         return [
             f'nvvidconv',
             f'video/x-raw, width=(int){int(width)}, height=(int){int(height)}, format=(string)BGRx',
             f'videoconvert',
             f'video/x-raw, format=(string)BGR',
-            f'appsink drop={str(drop).lower()}'
+            f'appsink max-buffers=1 drop={str(drop).lower()}'
         ]
 
     def _set_display_options(self, display_size):
@@ -56,16 +56,15 @@ class Pipeline:
             appsink = Pipeline._get_appsink(self.display_width, self.display_height)
             filesink = Pipeline._get_filesink(self.recording_width, self.recording_height, self.filename)
             
-            s = ' ! '.join([s, 'tee name=t', 'queue'] + appsink + ['t.', 'queue'] + filesink)
+            s = ' ! '.join([s, 'tee name=t', 'queue'] + appsink) + ' ! '.join([' t.', 'queue'] + filesink)
 
         else:
             if self.recording:
                 filesink = Pipeline._get_filesink(self.recording_width, self.recording_height, self.filename)
                 s = ' ! '.join([s] + filesink)
 
+            else:
+                appsink = Pipeline._get_appsink(self.display_width, self.display_height)
+                s = ' ! '.join([s] + appsink)
+
         return s
-
-if __name__ == '__main__':
-    pipeline = Pipeline(display_size=(3264/2, 2464/2), recording_size=(3264/2, 2464/2), filename='somefilelol.yuv')
-
-    s = pipeline.get_string()

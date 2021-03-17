@@ -5,7 +5,9 @@ import time
 import os
 
 pipeline = Pipeline(
-    
+    display_size=(3264/2, 2464/2),
+    recording_size=(3264/4, 2464/4),
+    filename='fisk.yuv'
 )
 
 font                   = cv2.FONT_HERSHEY_SIMPLEX
@@ -15,16 +17,9 @@ fontColor              = (255,255,255)
 lineType               = 2
 
 def show_camera():
-    pipeline = gstreamer_pipeline(flip_method=0)
-
-    while '  ' in pipeline:
-        pipeline = pipeline.replace('  ', ' ')
-
-    print('\n', 'Pipeline:\n', pipeline.replace('! ', '!\n'), '\n')
-    cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+    print(pipeline.get_string())
+    cap = cv2.VideoCapture(pipeline.get_string(), cv2.CAP_GSTREAMER)
     cap.read()
-
-    time.sleep(5)
 
     if cap.isOpened():
         window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_AUTOSIZE)
@@ -60,12 +55,8 @@ def show_camera():
     else:
         print("Unable to open camera")
 
-        time.sleep(3)
-
     cap.release()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    os.system('systemctl restart nvargus-daemon')
-    time.sleep(5)
     show_camera()
