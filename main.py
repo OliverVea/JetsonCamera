@@ -23,8 +23,8 @@ gpio.setmode(gpio.BOARD)
 
 s_record = Switch(35)
 
-l_r = LED(23)
-l_g = LED(21, initial_pattern=Pattern.BLINK)
+l_r = LED(23, color='red')
+l_g = LED(21, color='green', initial_pattern=Pattern.BLINK)
 
 #video = Video(display_size=FRAME_SIZE_4, recording_size=FRAME_SIZE_4)
 webserver = WebServer()

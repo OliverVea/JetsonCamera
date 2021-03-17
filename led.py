@@ -23,11 +23,12 @@ class LED(Task):
 
     # pin cleanup: 0 - never, 1 - when deleted, 2 - when deleted and when stop() is called.
     # pattern_step is time between steps (with scalar 1.0) in seconds.
-    def __init__(self, pin_number, initial_pattern: Pattern = Pattern.OFF, pattern_step: float = 0.5, pin_cleanup: int = 0, pwm_frequency: int = 100):
+    def __init__(self, pin_number, initial_pattern: Pattern = Pattern.OFF, pattern_step: float = 0.5, pin_cleanup: int = 0, pwm_frequency: int = 100, color: str = 'white'):
         self.pin = pin_number
         self.pattern = initial_pattern
         self.t = pattern_step
         self.cleanup = pin_cleanup
+        self.color = color
 
         self.period = -1
         if pwm_frequency > 0:
