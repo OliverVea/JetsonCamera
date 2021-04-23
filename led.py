@@ -17,9 +17,9 @@ class Pattern:
         return [(i / (steps - 1), 1) for i in range(steps)]
 
 class LED(Task):
-    EVENT_INITIALIZED = Event.get_event_code('LED Initialized', verbose=False)
-    EVENT_STARTED = Event.get_event_code('LED Started', verbose=False)
-    EVENT_STOPPED = Event.get_event_code('LED Stopped', verbose=False)
+    EVENT_INITIALIZED = Event.get_event_code('LED Initialized', verbose=True)
+    EVENT_STARTED = Event.get_event_code('LED Started', verbose=True)
+    EVENT_STOPPED = Event.get_event_code('LED Stopped', verbose=True)
 
     # pin cleanup: 0 - never, 1 - when deleted, 2 - when deleted and when stop() is called.
     # pattern_step is time between steps (with scalar 1.0) in seconds.
@@ -29,6 +29,8 @@ class LED(Task):
         self.t = pattern_step
         self.cleanup = pin_cleanup
         self.color = color
+
+        self.blink = False
 
         self.period = -1
         if pwm_frequency > 0:
@@ -83,6 +85,12 @@ class LED(Task):
 
                 if not self.running:
                     return
+
+            if self.blink:
+                self._output(gpio.HIGH)
+                time.sleep(0.2)
+                self._output(gpio.LOW)
+                self.blink = False
 
     def start(self):
         if self.is_running():

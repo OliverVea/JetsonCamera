@@ -12,9 +12,9 @@ from threading import Thread
 import time
 
 class WebServer(Task):
-    EVENT_INITIALIZED = Event.get_event_code('Webserver Initialized', verbose=False)
-    EVENT_STARTED = Event.get_event_code('Webserver Started', verbose=False)
-    EVENT_STOPPED = Event.get_event_code('Webserver Stopped', verbose=False)
+    EVENT_INITIALIZED = Event.get_event_code('Webserver Initialized', verbose=True)
+    EVENT_STARTED = Event.get_event_code('Webserver Started', verbose=True)
+    EVENT_STOPPED = Event.get_event_code('Webserver Stopped', verbose=True)
 
 
     def __init__(self, host: str = '0.0.0.0', video_port: int = 8000, side_port: int = 8001, display_size: tuple = (3264/4, 2464/4)):

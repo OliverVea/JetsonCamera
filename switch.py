@@ -6,10 +6,10 @@ from threading import Thread
 import time
 
 class Switch(Task):
-    EVENT_INITIALIZED = Event.get_event_code('Switch Initialized', verbose=False)
-    EVENT_STARTED = Event.get_event_code('Switch Started', verbose=False)
-    EVENT_STOPPED = Event.get_event_code('Switch Stopped', verbose=False)
-    EVENT_CHANGED = Event.get_event_code('Switch Changed', verbose=False)
+    EVENT_INITIALIZED = Event.get_event_code('Switch Initialized', verbose=True)
+    EVENT_STARTED = Event.get_event_code('Switch Started', verbose=True)
+    EVENT_STOPPED = Event.get_event_code('Switch Stopped', verbose=True)
+    EVENT_CHANGED = Event.get_event_code('Switch Changed', verbose=True)
     EVENT_ON = Event.get_event_code('Switch On', verbose=False)
     EVENT_OFF = Event.get_event_code('Switch Off', verbose=False)
 
